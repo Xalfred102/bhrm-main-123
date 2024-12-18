@@ -1,0 +1,230 @@
+<?php
+
+require 'php/connection.php';
+if (!empty($_SESSION["uname"]) && !empty($_SESSION["role"] == 'user')) {
+    unset($_SESSION['hname']);
+}
+
+if (!empty($_SESSION["uname"]) && !empty($_SESSION["role"])) {
+    $uname = $_SESSION["uname"];
+    $role = $_SESSION["role"];
+    $result = mysqli_query($conn, "select * from users where uname = '$uname'");
+    $fetch = mysqli_fetch_assoc($result);
+} else {
+
+}
+
+if (!empty($_SESSION["uname"]) && $_SESSION["role"] == 'landlord') {
+    header('location: boardinghouse.php');
+} else {
+
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DASHBOARD</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            color: white;
+            background: #000; /* Add a background color to ensure text visibility */
+        }
+
+        .navbar {
+            background-color: #343a40 !important;
+        }
+
+        .navbar-brand img {
+            width: 80px;
+            height: 80px;
+        }
+
+        .nav-link {
+            color: #fff !important;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #333;
+        }
+
+        .content {
+            color: white;
+            margin-top: 50px;
+            padding-bottom: 40px;
+            position: relative;
+            z-index: 1;
+            font-weight: 20;
+        }
+
+        .add-boarding {
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .col-md-4 {
+            margin-bottom: 20px;
+        }
+
+        .boarding-house-card {
+            background-color: rgba(169, 169, 169, 0.9);
+            color: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+
+        .boarding-house-card img {
+            width: 100%;
+            height: 200px; /* Fixed height for the image */
+            object-fit: cover; /* Ensure the image covers the entire box */
+            border-radius: 20px 20px 0 0; /* Rounded corners only on the top */
+        }
+
+        .boarding-house-card h5,
+        .boarding-house-card p {
+            margin-bottom: 10px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 10px;
+        }
+
+        .btn-container button {
+            flex: 0 0 48%; /* Make buttons fill the container with a small gap between */
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark py-0">
+        <a class="navbar-brand" href="#">
+            <img src="images/logo.png" alt="Logo">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="about.php">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contact.php">Contact</a>
+                </li>
+                <?php
+                if (!empty ($_SESSION['uname']) && $_SESSION['role'] == 'admin') {
+                    echo '<a class="nav-link"  href="php/bhapplications.php">View Applications</a>';
+                } else {
+                    echo '';
+                }
+                ?>
+                <?php
+                if ($_SESSION == true) {
+                    echo '<a class="btn btn-warning" href="php/logout.php">Logout</a>';
+                } else {
+                    echo '<a class="btn btn-warning" href="php/login.php">Login</a>';
+                }
+                ?>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container content">
+        <h1>Welcome to Maranding Boarding House Center
+        <?php if (!empty($_SESSION)) {
+            echo $fetch['fname'];
+        } 
+        ?>
+        </h1>
+        <p>Where we show you the best boarding houses around Maranding. Please select your desired boarding house and
+            have an amazing experience and chill moments ahead.</p>
+    </div>
+
+
+    <div class="container">
+    <div class="row">
+            <?php
+            if (!empty($_SESSION) && $_SESSION['role'] == 'admin') {
+                $query = "select * from boardinghouses inner join documents on boardinghouses.hname = documents.hname";
+                $result = mysqli_query($conn, $query);
+                while ($fetch = mysqli_fetch_assoc($result)) {
+                    $id = $fetch['id'];
+                    $hname = $fetch['hname'];
+                ?>
+                    <div class="col-md-4">
+                        <div class="boarding-house-card">
+                            <img src="<?php echo $fetch["image"] ?>" alt="Boarding House">
+                            <h5>Name: <?php echo $fetch["hname"] ?></h5>
+                            <p>Owner: <?php echo $fetch["owner"] ?></p>
+                            <p>Address: <?php echo $fetch["haddress"] ?></p>
+                        </div>
+                    </div>
+                <?php
+                    }
+                }
+                ?>
+        </div>
+
+        <div class="row">
+            <?php
+            if (empty($_SESSION) || $_SESSION['role'] == 'user') {
+                $query = "select * from boardinghouses inner join documents on boardinghouses.hname = documents.hname";
+                $result = mysqli_query($conn, $query);
+                while ($fetch = mysqli_fetch_assoc($result)) {
+                    $id = $fetch['id'];
+                    $hname = $fetch['hname'];
+                ?>
+                    <div class="col-md-4">
+                        <div class="boarding-house-card">
+                            <img src="<?php echo $fetch["image"] ?>" alt="Boarding House">
+                            <h5>Name: <?php echo $fetch["hname"] ?></h5>
+                            <p>Owner: <?php echo $fetch["landlord"] ?></p>
+                            <p>Address: <?php echo $fetch["haddress"] ?></p>
+                            <p>Contact No#: <?php echo $fetch["contactno"] ?></p>
+                            <div class="btn-container">
+                                <?php if (!empty($_SESSION) && $_SESSION['role'] == 'admin'): ?>
+                                    <a href="php/function.php?edit=<?php echo $id; ?>"><button class="btn btn-warning">Update</button></a>
+                                    <a href="php/function.php?delete=<?php echo $id; ?>"><button class="btn btn-warning">Delete</button></a>
+                                <?php else : ?>
+                                    <a href="boardinghouse.php?hname=<?php echo $hname; ?>" class="btn btn-warning">More Details</a>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php
+                    }
+                }
+                ?>
+        </div>
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

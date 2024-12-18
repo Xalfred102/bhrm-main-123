@@ -1,0 +1,57 @@
+$totalBedsBooked = count($beds);
+
+// Convert array of beds to a comma-separated string
+$bedsAsString = implode(',', $beds);
+
+
+<div class="form-col">
+    <label for="subscribe">Number of beds</label>
+    <?php 
+    $capacity = $fetch['capacity']; // Total room capacity
+    $currentTenants = $fetch['current_tenant']; // Number of current tenants
+
+    // Calculate the available beds for booking
+    $availableBeds = $capacity - $currentTenants;
+
+    if ($availableBeds > 0) {
+        for ($i = 1; $i <= $availableBeds; $i++): ?>
+        <div>
+            <label for="bed<?php echo $i; ?>">Book For <?php echo $i; ?> bed(s)</label>
+            <input type="checkbox" id="bed<?php echo $i; ?>" name="bed[]" value="<?php echo $i; ?>" class="bed-checkbox">
+        </div>
+        <?php endfor;
+    } else {
+        echo "<p>No beds available for booking.</p>";
+    }
+    ?>
+
+    <!-- Show the "Book for Whole Room" checkbox only if there are no current tenants -->
+    <?php if ($currentTenants == 0): ?>
+    <div>
+        <label for="bed-whole">Book For Whole Room</label>
+        <input type="checkbox" id="bed-whole" name="bed[]" value="Whole bed" class="bed-checkbox">
+    </div>
+    <?php endif; ?>
+</div>
+
+
+
+            <?php 
+                if ($tenantcount == $capacity){ 
+                    $query = "UPDATE rooms SET status = 'Full' WHERE room_no = $roomno";
+                    mysqli_query($conn, $query);
+
+                    $query = "UPDATE reservation SET status = 'Full' WHERE room_no = $roomno";
+                    mysqli_query($conn, $query);
+                ?>
+                    
+                <?php }
+                else if ($tenantcount <= $capacity){
+                    $query = "UPDATE rooms SET status = 'available' WHERE room_no = $roomno";
+                    mysqli_query($conn, $query);
+
+                    $query = "UPDATE reservation SET status = 'available' WHERE room_no = $roomno";
+                    mysqli_query($conn, $query);
+                ?>  
+
+            <?php }?>
